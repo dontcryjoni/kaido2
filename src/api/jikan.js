@@ -1,92 +1,121 @@
-import { useQuery } from 'react-query';
-import { queueRequest } from './apiQueue';
+import { useQuery } from "react-query";
+import { queueRequest } from "./apiQueue";
 
 const queryConfig = {
-  staleTime: 2.1 * 60 * 1000, // 2.1 minutes
+  staleTime: 2.1 * 60 * 1000,
 };
 
-// Custom hook for fetching data
-function useFetch(queryKey, endpoint) {
-  return useQuery(queryKey, () => queueRequest(endpoint), queryConfig);
+function executeQuery(queryKey, endpoint) {
+  return useQuery(
+    queryKey,
+    async () => {
+      return await queueRequest(endpoint);
+    },
+    queryConfig
+  );
 }
 
-// Example usage in a component
-export function useMangaReviews() {
-  return useFetch('top-manga-reviews', 'reviews/manga');
+export function handleJikanResponse(queryKey, endpoint) {
+  const res = executeQuery(queryKey, endpoint);
+  const data = res.data?.data;
+  return { data: data, isLoading: res.isLoading, isError: res.isError };
 }
 
-export function useAnimeReviews() {
-  return useFetch('top-anime-reviews', 'reviews/anime');
+export function getMangaReviews() {
+  return handleJikanResponse("top-manga-reviews", "reviews/manga");
+}
+export function getAnimeReviews() {
+  return handleJikanResponse("top-anime-reviews", "reviews/anime");
 }
 
-export function useTopAiring() {
-  return useFetch('top-airing', 'top/anime?filter=airing&limit=4');
+export function getTopAiring() {
+  return handleJikanResponse("top-airing", "top/anime?filter=airing&limit=4");
 }
-
-export function useMostPopular() {
-  return useFetch('most-popular', 'top/anime?filter=bypopularity&limit=4');
+export function getMostPopular() {
+  return handleJikanResponse(
+    "most-popular",
+    "top/anime?filter=bypopularity&limit=4"
+  );
 }
-
-export function useMostFavorite() {
-  return useFetch('most-favorite', 'top/anime?filter=favorite&limit=4');
+export function getMostFavorite() {
+  return handleJikanResponse(
+    "most-favorite",
+    "top/anime?filter=favorite&limit=4"
+  );
 }
-
-export function useTopMovies() {
-  return useFetch('top-movies', 'top/anime?type=movie&filter=bypopularity&limit=12');
+export function getTopMovies() {
+  return handleJikanResponse(
+    "top-movies",
+    "top/anime?type=movie&filter=bypopularity&limit=12"
+  );
 }
-
-export function useTopOVAs() {
-  return useFetch('top-OVAs', 'top/anime?type=ova&filter=bypopularity&limit=12');
+export function getTopOVAs() {
+  return handleJikanResponse(
+    "top-OVAs",
+    "top/anime?type=ova&filter=bypopularity&limit=12"
+  );
 }
-
-export function useTopONAs() {
-  return useFetch('top-ONAs', 'top/anime?type=ona&filter=bypopularity&limit=12');
+export function getTopONAs() {
+  return handleJikanResponse(
+    "top-ONAs",
+    "top/anime?type=ona&filter=bypopularity&limit=12"
+  );
 }
-
-export function useTopSpecials() {
-  return useFetch('top-specials', 'top/anime?type=special&filter=bypopularity&limit=12');
+export function getTopSpecials() {
+  return handleJikanResponse(
+    "top-specials",
+    "top/anime?type=special&filter=bypopularity&limit=12"
+  );
 }
-
-export function useTopUpcoming() {
-  return useFetch('top-upcoming', 'top/anime?filter=upcoming&limit=4');
+export function getTopUpcoming() {
+  return handleJikanResponse(
+    "top-upcoming",
+    "top/anime?filter=upcoming&limit=4"
+  );
 }
-
-export function useGenre() {
-  return useFetch('genre', 'genres/anime');
+export function getGenre() {
+  return handleJikanResponse("genre", "genres/anime");
 }
-
-export function useTopCharacters() {
-  return useFetch('top-characters', 'top/characters?limit=5');
+export function getTopCharacters() {
+  return handleJikanResponse("top-characters", "top/characters?limit=5");
 }
-
-export function useAnimeByMalId(id) {
-  return useFetch(`anime-${id}`, `anime/${id}`);
+export function getAnimeByMalId(id) {
+  return handleJikanResponse(`anime-${id}`, `anime/${id}`);
 }
-
-export function useAnimeByGenre(mal_id) {
-  return useFetch(`anime-by-genre-${mal_id}`, `anime?genres=${mal_id}&limit=24`);
+export function getAnimeByGenre(mal_id) {
+  return handleJikanResponse(
+    `anime-by-genre-${mal_id}`,
+    `anime?genres=${mal_id}&limit=24`
+  );
 }
-
-export function useAnimeByFilter(filterName) {
-  return useFetch(`anime-by-filter-${filterName}`, `top/anime?filter=${filterName}&limit=24`);
+export function getAnimeByFilter(filterName) {
+  return handleJikanResponse(
+    `anime-by-filter-${filterName}`,
+    `top/anime?filter=${filterName}&limit=24`
+  );
 }
-
-export function useAnimeByType(type) {
-  return useFetch(`anime-by-type-${type}`, `top/anime?type=${type}&limit=24`);
+export function getAnimeByType(type) {
+  return handleJikanResponse(
+    `anime-by-type-${type}`,
+    `top/anime?type=${type}&limit=24`
+  );
 }
-
-export function useRecommendedAnime() {
-  return useFetch('recommended-anime', `anime?limit=24&status=airing&filter=bypopularity&type=tv&order_by=popularity`);
+export function getRecommendedAnime(type) {
+  return handleJikanResponse(
+    `recommended-anime`,
+    `anime?limit=24&status=airing&filter=bypopularity&type=tv&order_by=popularity`
+  );
 }
-
-export function useRandomAnime() {
-  return useFetch('random-anime', 'random/anime');
+export function getRandomAnime() {
+  return handleJikanResponse(`random-anime`, "random/anime");
 }
-
-export function useAnimeSearch(name, parameter) {
-  const queryString = parameter === 'title' ? `q=${name}` : `letter=${name}`;
-  return useFetch(`anime-search-${name}`, `anime?${queryString}&sfw=true&order_by=rank&limit=24`);
-}
+export function getAnimeSearch(name, parameter) {
+  let queryString = "";
+  if (parameter === "title") {
+    queryString = `q=${name}`;
+  } else {
+    queryString = `letter=${name}`;
+  }
 
   return handleJikanResponse(
     `anime-search${name}`,
